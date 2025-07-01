@@ -1,12 +1,17 @@
-// Import Express
+// Import Express ve Cors
 import express from 'express';
+import cors from 'cors';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// CORS middleware aktif et
+app.use(cors());
+
+// JSON middleware
 app.use(express.json());
 
-//Public klasörünü static serve et
+// Public klasörünü static serve et
 app.use(express.static('public'));
 
 // Geçici veritabanı
@@ -41,8 +46,11 @@ app.post('/shorten', (req, res) => {
 
   console.log('URL database:', urlDatabase); // Debug log
 
+  // localhost yerine Render base URL kullan (dinamik)
+  const baseUrl = process.env.BASE_URL || `http://localhost:${PORT}`;
+
   res.json({
-    shortUrl: `http://localhost:${PORT}/${shortId}`,
+    shortUrl: `${baseUrl}/${shortId}`,
     expireAt: expireAt,
     clicks: 0 
   });
