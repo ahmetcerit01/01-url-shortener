@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>URL Shortener</title>
+
+  <!-- Bootstrap CDN -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Bootstrap Icons CDN -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+    .shortener-card {
+      max-width: 500px;
+      margin: auto;
+      margin-top: 80px;
+    }
+    .copy-icon {
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="card shadow-sm p-4 shortener-card">
+      <h3 class="text-center mb-4">🔗 URL Shortener</h3>
+
+      <!-- Input Form -->
+      <div class="mb-3">
+        <label for="longUrl" class="form-label">Uzun URL</label>
+        <input type="text" class="form-control" id="longUrl" placeholder="https://example.com">
+      </div>
+      <button id="shortenBtn" class="btn btn-primary w-100">Kısalt</button>
+
+      <!-- Sonuç Kutusu -->
+      <div id="resultContainer" class="alert alert-success mt-4 d-none d-flex justify-content-between align-items-center">
+        <span id="resultText"></span>
+        <i id="copyIcon" class="bi bi-clipboard copy-icon mt-2"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Custom Script -->
+  <script>
+    const shortenBtn = document.getElementById('shortenBtn');
+    const longUrlInput = document.getElementById('longUrl');
+    const resultContainer = document.getElementById('resultContainer');
+    const resultText = document.getElementById('resultText');
+    const copyIcon = document.getElementById('copyIcon');
+
+    shortenBtn.addEventListener('click', async () => {
+      const longUrl = longUrlInput.value.trim();
+
+      if (!longUrl) {
+        alert('Lütfen bir URL girin.');
+        return;
+      }
+
+      try {
+        const response = await fetch('http://localhost:3001/shorten', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ longUrl })
+        });
+
+        const data = await response.json();
+
+        if (data.shortUrl) {
+          resultText.textContent = data.shortUrl;
+          resultContainer.classList.remove('d-none');
+        } else {
+          resultText.textContent = 'Kısaltma işlemi başarısız.';
+          resultContainer.classList.remove('d-none');
+        }
+      } catch (error) {
+        console.error(error);
+        resultText.textContent = 'Hata oluştu.';
+        resultContainer.classList.remove('d-none');
+      }
+    });
+
+    copyIcon.addEventListener('click', () => {
+      const textToCopy = resultText.textContent;
+      navigator.clipboard.writeText(textToCopy)
+        .then(() => {
+          alert('Kısa URL kopyalandı!');
+        })
+        .catch(err => {
+          console.error('Kopyalama hatası:', err);
+        });
+    });
+  </script>
+</body>
+</html>
